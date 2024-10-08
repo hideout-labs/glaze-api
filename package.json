@@ -1,23 +1,12 @@
 {
   "name": "glaze-api",
   "type": "module",
-  "main": "./dist/server/index.cjs",
-  "module": "./dist/server/index.mjs",
-  "types": "./dist/server/index.d.cts",
-  "exports": {
-    "require": {
-      "types": "./dist/server/index.d.cts",
-      "default": "./dist/server/index.cjs"
-    },
-    "import": {
-      "types": "./dist/server/index.d.mts",
-      "default": "./dist/server/index.mjs"
-    }
-  },
   "scripts": {
-    "dev": "tsx watch src/server/index.ts",
-    "start": "node dist/server/index.mjs",
-    "build": "rimraf dist && pkgroll"
+    "server:dev": "tsx watch src/server/index.ts",
+    "server:start": "node dist/server/index.js",
+    "client:dev": "tsx watch src/client/index.ts",
+    "client:start": "node dist/client/index.js",
+    "build": "tsup"
   },
   "dependencies": {
     "@circle-fin/developer-controlled-wallets": "^4.5.1",
@@ -25,6 +14,7 @@
     "@hono/swagger-ui": "^0.4.1",
     "@hono/trpc-server": "^0.3.2",
     "@hono/zod-validator": "^0.4.1",
+    "@trpc/client": "^10.45.2",
     "@trpc/server": "^10.45.2",
     "bs58": "^6.0.0",
     "dotenv": "^16.4.5",
@@ -37,9 +27,9 @@
   "devDependencies": {
     "@types/node": "^20.11.17",
     "esbuild": "^0.24.0",
-    "pkgroll": "^2.5.0",
     "prettier": "^3.3.3",
     "rimraf": "^6.0.1",
+    "tsup": "^8.3.0",
     "tsx": "^4.7.1",
     "typescript": "^5.6.2"
   }

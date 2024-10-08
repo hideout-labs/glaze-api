@@ -37,7 +37,6 @@ export const registerAccountMachine = setup({
             // Check if ID is registered in Glaze
             const isRegistered = await checkCircleAccount({ refId });
 
-            console.log({ isRegisteredInApp, isRegistered })
 
             return {
                 isRegisteredInApp,
@@ -76,11 +75,8 @@ export const registerAccountMachine = setup({
             const refId = generateKey(input.id);
             const security = generateKey([input.id, input.pin].join("$"));
 
-            console.log({ refId, security })
-
             if (refId && security) {
                 const walletAddress = await generateCircleAccount({ key: refId, appId: input.appId, security });
-                console.log({ refId, security, walletAddress })
 
                 if (!walletAddress || walletAddress.length === 0) {
                     throw new Error("Registration failed")

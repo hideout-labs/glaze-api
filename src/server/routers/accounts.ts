@@ -24,7 +24,7 @@ export const accountsRouter = router({
             success: z.boolean(),
             error: z.string().optional(),
         })
-    ).query(async ({ ctx, input }) => {
+    ).mutation(async ({ ctx, input }) => {
 
         const registerAccount = createActor(registerAccountMachine, {
             input: {
@@ -61,7 +61,7 @@ export const accountsRouter = router({
         }
     )).output(
         z.string().optional()
-    ).query(async ({ input }) => {
+    ).mutation(async ({ input }) => {
         try {
             const refId = generateKey(input.id);
             const security = generateKey([input.id, input.pin].join("$"));
