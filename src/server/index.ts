@@ -3,6 +3,7 @@ import { trpcServer } from '@hono/trpc-server'
 import { Hono } from 'hono'
 import { renderTrpcPanel } from 'trpc-panel'
 import { appRouter } from '~/server/routers/app'
+import "dotenv/config";
 
 const app = new Hono()
 
@@ -18,8 +19,10 @@ app.use(
 )
 
 app.get('/docs', (c) => {
+
+  const url = process.env.RAILWAY_PRIVATE_DOMAIN ? process.env.RAILWAY_PRIVATE_DOMAIN : 'http://localhost:4001';
   const html = renderTrpcPanel(appRouter, {
-    url: 'http://localhost:4001/trpc',
+    url: `${url}/trpc`,
   });
 
   return c.html(html);
