@@ -2,8 +2,8 @@
   "name": "glaze-api",
   "type": "module",
   "scripts": {
-    "server:dev": "tsx watch src/server/index.ts",
-    "server:start": "node dist/server/index.js",
+    "dev": "tsx watch src/server/index.ts",
+    "start": "node dist/server/index.js",
     "client:dev": "tsx watch src/client/index.ts",
     "client:start": "node dist/client/index.js",
     "build": "tsup"

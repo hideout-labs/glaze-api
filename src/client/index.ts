@@ -5,7 +5,7 @@ import 'dotenv/config';
 const client = createTRPCProxyClient<AppRouter>({
     links: [
         httpBatchLink({
-            url: process.env.NODE_ENV === 'development' ? 'http://localhost:4001/trpc' : 'https://api.getglazed.xyz/trpc',
+            url: process.env.NODE_ENV === 'development' ? 'http://localhost:4001/trpc' : 'https://glaze-api-production.up.railway.app/trpc',
         }),
     ],
 });
