@@ -1,8 +1,11 @@
 import { assign, fromPromise, setup } from "xstate";
-import { checkCircleAccount, generateCircleAccount, generateKey } from "~/server/utils/crypto";
+import {
+    checkCircleAccount,
+    generateCircleAccount,
+} from "~/server/utils/circle";
+import { generateKey } from "~/server/utils/crypto";
 
-
-export type RegisterAccount = { success: boolean; error?: string; }
+export type RegisterAccount = { success: boolean; error?: string };
 export const registerAccountMachine = setup({
     types: {
         context: {} as {
@@ -13,8 +16,13 @@ export const registerAccountMachine = setup({
             error?: string;
             pin?: string;
         },
-        events: {} as { type: "register"; id: string; appId?: string | null; pin: string },
-        output: {} as RegisterAccount
+        events: {} as {
+            type: "register";
+            id: string;
+            appId?: string | null;
+            pin: string;
+        },
+        output: {} as RegisterAccount,
     },
     actions: {
         saveIds: assign({
@@ -24,79 +32,108 @@ export const registerAccountMachine = setup({
         }),
     },
     actors: {
-        fetchLogins: fromPromise(async ({ input }: { input: { id?: string, appId?: string | null } }) => {
-            if (!input.id) {
-                throw new Error("ID not set");
-            }
-
-            const refId = generateKey(input.id);
-
-            // Check if ID is registered in App
-            const isRegisteredInApp = await checkCircleAccount({ refId, appId: input.appId });
-
-            // Check if ID is registered in Glaze
-            const isRegistered = await checkCircleAccount({ refId });
-
-
-            return {
-                isRegisteredInApp,
-                isRegistered,
-            }
-        }),
-        registerAccount: fromPromise(async ({ input }: { input: { id?: string; pin?: string } }) => {
-            if (!input.id) {
-                throw new Error("ID not set");
-            }
-
-            const refId = generateKey(input.id);
-            const security = generateKey([input.id, input.pin].join("$"));
-
-            if (refId && security) {
-                const walletAddress = await generateCircleAccount({ key: refId, security });
-
-                if (!walletAddress || walletAddress.length === 0) {
-                    throw new Error("Registration failed")
+        fetchLogins: fromPromise(
+            async ({
+                input,
+            }: {
+                input: { id?: string; appId?: string | null };
+            }) => {
+                if (!input.id) {
+                    throw new Error("ID not set");
                 }
 
-                return walletAddress;
-            }
+                const refId = generateKey(input.id);
 
-            return new Error("Registration failed")
-        }),
-        registerAppAccount: fromPromise(async ({ input }: { input: { id?: string; pin?: string; appId?: string | null } }) => {
-            if (!input.id) {
-                throw new Error("ID not set");
-            }
+                // Check if ID is registered in App
+                const isRegisteredInApp = await checkCircleAccount({
+                    refId,
+                    appId: input.appId,
+                });
 
-            if (!input.appId) {
-                throw new Error("App ID not set");
-            }
+                // Check if ID is registered in Glaze
+                const isRegistered = await checkCircleAccount({ refId });
 
-            const refId = generateKey(input.id);
-            const security = generateKey([input.id, input.pin].join("$"));
-
-            if (refId && security) {
-                const walletAddress = await generateCircleAccount({ key: refId, appId: input.appId, security });
-
-                if (!walletAddress || walletAddress.length === 0) {
-                    throw new Error("Registration failed")
+                return {
+                    isRegisteredInApp,
+                    isRegistered,
+                };
+            },
+        ),
+        registerAccount: fromPromise(
+            async ({ input }: { input: { id?: string; pin?: string } }) => {
+                if (!input.id) {
+                    throw new Error("ID not set");
                 }
 
-                return walletAddress;
-            }
+                const refId = generateKey(input.id);
+                const security = generateKey([input.id, input.pin].join("$"));
 
-            return new Error("Registration failed")
-        }),
+                if (refId && security) {
+                    const walletAddress = await generateCircleAccount({
+                        key: refId,
+                        security,
+                    });
+
+                    if (!walletAddress || walletAddress.length === 0) {
+                        throw new Error("Registration failed");
+                    }
+
+                    return walletAddress;
+                }
+
+                return new Error("Registration failed");
+            },
+        ),
+        registerAppAccount: fromPromise(
+            async ({
+                input,
+            }: {
+                input: { id?: string; pin?: string; appId?: string | null };
+            }) => {
+                if (!input.id) {
+                    throw new Error("ID not set");
+                }
+
+                if (!input.appId) {
+                    throw new Error("App ID not set");
+                }
+
+                const refId = generateKey(input.id);
+                const security = generateKey([input.id, input.pin].join("$"));
+
+                if (refId && security) {
+                    const walletAddress = await generateCircleAccount({
+                        key: refId,
+                        appId: input.appId,
+                        security,
+                    });
+
+                    if (!walletAddress || walletAddress.length === 0) {
+                        throw new Error("Registration failed");
+                    }
+
+                    return walletAddress;
+                }
+
+                return new Error("Registration failed");
+            },
+        ),
     },
     guards: {
         isNewAccount: function ({ context }) {
-            return context.isRegistered === false && context.isRegisteredInApp === false;
+            return (
+                context.isRegistered === false &&
+                context.isRegisteredInApp === false
+            );
         },
         isNewAppAccount: function ({ context }) {
-            return context.isRegistered === true && context.isRegisteredInApp === false;
+            return (
+                context.isRegistered === true &&
+                context.isRegisteredInApp === false
+            );
         },
         hasAppId: function ({ context }) {
-            return context.appId && context.appId.length > 0 || false
+            return (context.appId && context.appId.length > 0) || false;
         },
     },
     schemas: {
@@ -135,20 +172,22 @@ export const registerAccountMachine = setup({
                 id: "fetchLogins",
                 input: ({ context }) => ({
                     id: context.id,
-                    appId: context.appId
+                    appId: context.appId,
                 }),
                 onDone: {
                     target: "validating",
                     actions: assign({
-                        isRegistered: ({ event }) => event.output.isRegistered || false,
-                        isRegisteredInApp: ({ event }) => event.output.isRegisteredInApp || false,
-                    })
+                        isRegistered: ({ event }) =>
+                            event.output.isRegistered || false,
+                        isRegisteredInApp: ({ event }) =>
+                            event.output.isRegisteredInApp || false,
+                    }),
                 },
                 onError: {
                     target: "error",
                     actions: assign({
-                        error: "Failed fetching login details"
-                    })
+                        error: "Failed fetching login details",
+                    }),
                 },
                 src: "fetchLogins",
             },
@@ -170,8 +209,8 @@ export const registerAccountMachine = setup({
                 {
                     target: "error",
                     actions: assign({
-                        error: "Account already registered"
-                    })
+                        error: "Account already registered",
+                    }),
                 },
             ],
         },
@@ -183,7 +222,7 @@ export const registerAccountMachine = setup({
                 id: "registerAccount",
                 input: ({ context }) => ({
                     id: context.id,
-                    pin: context.pin
+                    pin: context.pin,
                 }),
                 onDone: [
                     {
@@ -199,8 +238,8 @@ export const registerAccountMachine = setup({
                 onError: {
                     target: "error",
                     actions: assign({
-                        error: "Failed registering account"
-                    })
+                        error: "Failed registering account",
+                    }),
                 },
                 src: "registerAccount",
             },
@@ -219,19 +258,18 @@ export const registerAccountMachine = setup({
                 onError: {
                     target: "error",
                     actions: assign({
-                        error: "Failed registering app account"
-                    })
+                        error: "Failed registering app account",
+                    }),
                 },
                 src: "registerAppAccount",
             },
         },
         registered: {
             type: "final",
-
         },
     },
     output: ({ context }) => ({
         success: !context.error || context.error.length === 0,
-        error: context.error
-    })
+        error: context.error,
+    }),
 });

@@ -1,36 +1,46 @@
 {
-  "name": "glaze-api",
-  "type": "module",
-  "scripts": {
-    "dev": "tsx watch src/server/index.ts",
-    "start": "node dist/server/index.js",
-    "client:dev": "tsx watch src/client/index.ts",
-    "client:start": "node dist/client/index.js",
-    "build": "tsup"
-  },
-  "dependencies": {
-    "@circle-fin/developer-controlled-wallets": "^4.5.1",
-    "@hono/node-server": "^1.13.1",
-    "@hono/swagger-ui": "^0.4.1",
-    "@hono/trpc-server": "^0.3.2",
-    "@hono/zod-validator": "^0.4.1",
-    "@trpc/client": "^10.45.2",
-    "@trpc/server": "^10.45.2",
-    "bs58": "^6.0.0",
-    "dotenv": "^16.4.5",
-    "hono": "^4.6.3",
-    "trpc-openapi": "^1.2.0",
-    "trpc-panel": "^1.3.4",
-    "xstate": "^5.18.2",
-    "zod": "^3.23.8"
-  },
-  "devDependencies": {
-    "@types/node": "^20.11.17",
-    "esbuild": "^0.24.0",
-    "prettier": "^3.3.3",
-    "rimraf": "^6.0.1",
-    "tsup": "^8.3.0",
-    "tsx": "^4.7.1",
-    "typescript": "^5.6.2"
-  }
+    "name": "glaze-api",
+    "type": "module",
+    "scripts": {
+        "dev": "tsx watch src/server/index.ts",
+        "start": "node dist/server/index.js",
+        "client:dev": "tsx watch src/client/index.ts",
+        "client:start": "node dist/client/index.js",
+        "format": "prettier --config prettier.config.js --ignore-path .gitignore --write \"**/*.+(js|ts|json|jsx|tsx)\"",
+        "build": "tsup",
+        "trigger:dev": "npx trigger.dev@latest dev",
+        "trigger:deploy": "npx trigger.dev@latest deploy"
+    },
+    "dependencies": {
+        "@circle-fin/developer-controlled-wallets": "^4.5.1",
+        "@hono/node-server": "^1.13.1",
+        "@hono/swagger-ui": "^0.4.1",
+        "@hono/trpc-server": "^0.3.2",
+        "@hono/zod-validator": "^0.4.1",
+        "@metaplex-foundation/mpl-core": "^1.1.1",
+        "@metaplex-foundation/umi": "^0.9.2",
+        "@metaplex-foundation/umi-bundle-defaults": "^0.9.2",
+        "@metaplex-foundation/umi-uploader-irys": "^0.10.0-beta.0",
+        "@trigger.dev/sdk": "^3.0.12",
+        "@trpc/client": "^10.45.2",
+        "@trpc/server": "^10.45.2",
+        "bs58": "^6.0.0",
+        "dotenv": "^16.4.5",
+        "hono": "^4.6.3",
+        "trpc-openapi": "^1.2.0",
+        "trpc-panel": "^1.3.4",
+        "xstate": "^5.18.2",
+        "zod": "^3.23.8"
+    },
+    "devDependencies": {
+        "@trigger.dev/build": "^3.0.12",
+        "@types/node": "^20.11.17",
+        "esbuild": "^0.24.0",
+        "prettier": "^3.3.3",
+        "rimraf": "^6.0.1",
+        "tsup": "^8.3.0",
+        "tsx": "^4.7.1",
+        "typescript": "^5.6.2"
+    },
+    "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
