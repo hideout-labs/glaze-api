@@ -38,7 +38,10 @@ export const accountsRouter = router({
                 });
 
                 // Check if ID is registered in Glaze
-                const isRegistered = await checkCircleAccount({ refId });
+                const isRegistered = await checkCircleAccount({
+                    refId,
+                    appId: ctx.defaultAppId,
+                });
 
                 return {
                     isRegisteredInApp,

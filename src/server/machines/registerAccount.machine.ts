@@ -51,7 +51,10 @@ export const registerAccountMachine = setup({
                 });
 
                 // Check if ID is registered in Glaze
-                const isRegistered = await checkCircleAccount({ refId });
+                const isRegistered = await checkCircleAccount({
+                    refId,
+                    appId: process.env.CIRCLE_DEFAULT_SET,
+                });
 
                 return {
                     isRegisteredInApp,
@@ -72,6 +75,7 @@ export const registerAccountMachine = setup({
                     const walletAddress = await generateCircleAccount({
                         key: refId,
                         security,
+                        appId: process.env.CIRCLE_DEFAULT_SET,
                     });
 
                     if (!walletAddress || walletAddress.length === 0) {

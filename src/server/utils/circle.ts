@@ -11,7 +11,7 @@ export async function generateCircleAccount({
     security,
 }: {
     key: string;
-    appId?: string;
+    appId: string | null | undefined;
     security: string;
 }) {
     if (apiKey && secret && appId) {
@@ -52,7 +52,7 @@ export async function checkCircleAccount({
     appId,
 }: {
     refId: string;
-    appId?: string | null;
+    appId: string | null | undefined;
 }) {
     if (apiKey && secret && appId) {
         const circleDeveloperSdk = initiateDeveloperControlledWalletsClient({

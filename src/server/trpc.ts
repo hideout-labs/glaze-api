@@ -9,6 +9,7 @@ export const createContext = ({
     res,
 }: trpcExpress.CreateExpressContextOptions) => ({
     appId: req.headers["X-Glaze-App-Id"] as string,
+    defaultAppId: process.env.CIRCLE_DEFAULT_SET,
 }); // no context
 
 export type Context = Awaited<ReturnType<typeof createContext>>;

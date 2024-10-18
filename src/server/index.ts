@@ -4,7 +4,6 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { renderTrpcPanel } from "trpc-panel";
 import { appRouter } from "~/server/routers/app";
-import { createContext } from "~/server/trpc";
 
 const app = new Hono();
 
@@ -14,11 +13,19 @@ app.get("/", (c) => {
 
 app.use(
     "/trpc/*",
-    cors(),
+    cors({
+        origin: "*", // Allow all origins
+        allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allowHeaders: ["Content-Type", "Authorization", "X-Glaze-App-Id"],
+        exposeHeaders: ["Content-Length"],
+        maxAge: 600,
+        credentials: true,
+    }),
     trpcServer({
         router: appRouter,
         createContext: (_opts, c) => ({
             appId: c.req.header("X-Glaze-App-Id"),
+            defaultAppId: process.env.CIRCLE_DEFAULT_SET,
         }),
     }),
 );
