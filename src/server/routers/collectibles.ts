@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createCollection } from "~/server/trigger/tasks/create-collection";
 import { TRPCError } from "@trpc/server";
 import { createCollectible } from "~/server/trigger/tasks/create-collectible";
+import { runs } from "@trigger.dev/sdk/v3";
 
 export const collectiblesRouter = router({
     createCollection: publicProcedure
@@ -138,6 +139,42 @@ export const collectiblesRouter = router({
                 return {
                     success: false,
                     error: "Failed to fetch wallet collectibles",
+                };
+            }
+        }),
+    checkCollectibleAction: publicProcedure
+        .input(
+            z.object({
+                actionId: z.string(),
+            }),
+        )
+        .output(
+            z.object({
+                success: z.boolean(),
+                status: z.string().optional(),
+                error: z.string().optional(),
+            }),
+        )
+        .query(async ({ input }) => {
+            try {
+                const result = await runs.retrieve(input.actionId);
+
+                if (!result) {
+                    return {
+                        success: false,
+                        error: "Action not found",
+                    };
+                }
+
+                return {
+                    success: true,
+                    status: result.status,
+                };
+            } catch (error) {
+                console.error("Error checking action status:", error);
+                return {
+                    success: false,
+                    error: "Failed to check action status",
                 };
             }
         }),
