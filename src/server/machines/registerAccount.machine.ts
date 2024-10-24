@@ -137,7 +137,12 @@ export const registerAccountMachine = setup({
             );
         },
         hasAppId: function ({ context }) {
-            return (context.appId && context.appId.length > 0) || false;
+            return (
+                (context.appId &&
+                    context.appId.length > 0 &&
+                    context.appId !== process.env.CIRCLE_DEFAULT_SET) ||
+                false
+            );
         },
     },
     schemas: {

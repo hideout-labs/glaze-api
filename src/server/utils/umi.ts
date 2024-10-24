@@ -10,8 +10,7 @@ const WALLET_KEYPAIR = process.env.WALLET_KEYPAIR;
 
 export function getUmi() {
     const umi = createUmi(
-        process.env.SOL_SCORE_CHECKER_API_KEY ??
-            "https://api.mainnet-beta.solana.com",
+        process.env.RPC_URL ?? "https://api.mainnet-beta.solana.com",
     );
 
     // Usually Keypairs are saved as Uint8Array, so you
@@ -27,7 +26,11 @@ export function getUmi() {
     // Tell Umi to use the new signer.
     umi.use(signerIdentity(signer));
 
-    umi.use(irysUploader());
+    umi.use(
+        irysUploader({
+            address: process.env.IRYS_ADDRESS,
+        }),
+    );
     umi.use(mplCore());
 
     return umi;

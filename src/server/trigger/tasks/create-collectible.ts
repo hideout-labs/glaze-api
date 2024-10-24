@@ -1,39 +1,36 @@
 import { task } from "@trigger.dev/sdk/v3";
 import { getUmi } from "~/server/utils/umi";
-import { generateSigner } from "@metaplex-foundation/umi";
-import { createCollection as createCollectionMpl } from "@metaplex-foundation/mpl-core";
-import { Task } from "@trigger.dev/sdk";
+import { generateSigner, publicKey } from "@metaplex-foundation/umi";
 import { TRPCError } from "@trpc/server";
 import { uploadImage } from "~/server/trigger/tasks/upload-image";
+import { create, fetchCollection } from "@metaplex-foundation/mpl-core";
 
 const umi = getUmi();
 
-type CreateCollectionParams = {
+type CreateCollectibleParams = {
     imageUrl: string;
     name: string;
     description: string;
+    owner: string;
 };
 
-type CreateCollectionResult = {
+type CreateCollectibleResult = {
     signature: string;
-    collectionAddress: string;
+    collectibleAddress: string;
 };
 
-export const createCollection = task<
-    "create-collection",
-    CreateCollectionParams,
-    CreateCollectionResult
+export const createCollectible = task<
+    "create-collectible",
+    CreateCollectibleParams,
+    CreateCollectibleResult
 >({
-    id: "create-collection",
+    id: "create-collectible",
     run: async ({
         imageUrl,
         name,
         description,
-    }: {
-        imageUrl: string;
-        name: string;
-        description: string;
-    }) => {
+        owner,
+    }: CreateCollectibleParams) => {
         try {
             // Upload metadata
             const imageUri = await uploadImage.triggerAndWait({
@@ -48,29 +45,28 @@ export const createCollection = task<
             }
 
             const imageHash = imageUri.output.split("/").pop();
-            const collectionMetadata = await umi.uploader.uploadJson({
+
+            const collection = await fetchCollection(
+                umi,
+                process.env.GLAZE_COLLECTION_ADDRESS || "",
+            );
+
+            const assetMetadata = await umi.uploader.uploadJson({
                 name,
                 description,
                 image: `${process.env.IRYS_ADDRESS}/${imageHash}`,
             });
 
-            if (collectionMetadata.length === 0) {
-                throw new TRPCError({
-                    code: "INTERNAL_SERVER_ERROR",
-                    message: "Error uploading image",
-                });
-            }
+            const assetMetadataHash = assetMetadata.split("/").pop();
 
-            const collectionMetadataHash = collectionMetadata.split("/").pop();
+            const assetAddress = generateSigner(umi);
 
-            // Generate a new address for the collection
-            const collectionSigner = generateSigner(umi);
-
-            // Create the collection transaction
-            const tx = createCollectionMpl(umi, {
-                collection: collectionSigner,
+            const tx = create(umi, {
+                asset: assetAddress,
+                collection: collection,
                 name,
-                uri: `${process.env.IRYS_ADDRESS}/${collectionMetadataHash}`,
+                uri: `${process.env.IRYS_ADDRESS}/${assetMetadataHash}`,
+                owner: publicKey(owner || ""),
             });
 
             // Send and confirm the transaction
@@ -88,10 +84,10 @@ export const createCollection = task<
 
             return {
                 signature: Buffer.from(txResult.signature).toString("base64"),
-                collectionAddress: collectionSigner.publicKey,
+                collectibleAddress: assetAddress.publicKey,
             };
         } catch (e) {
-            throw new Error("Error creating collection");
+            throw new Error("Error creating collectible");
         }
     },
 });
